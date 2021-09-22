@@ -1,6 +1,8 @@
 # learning-rust
 
-## コマンドラインアプリケーション
+## grrs: コマンドラインアプリケーション
+
+チュートリアル
 https://rust-cli.github.io/book/index.html
 
 ## ブラウザネイティブライブラリ
