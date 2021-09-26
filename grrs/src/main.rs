@@ -5,6 +5,8 @@
  * 補足:
  * 1. StructOptの機能により、構造体のドキュメントコメントからコマンドのhelpが生成される。
  * 2. anyhowの機能により、エラーハンドリング・メッセージを簡潔に。
+ * 3. 時間のかかる処理があり、インジケータを使いたい場合は下記サンプル参照。
+ *    https://github.com/mitsuhiko/indicatif/tree/main/examples
  */
 use structopt::StructOpt;
 use anyhow::{Context, Result};
