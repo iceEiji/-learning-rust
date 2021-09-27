@@ -12,13 +12,18 @@ use structopt::StructOpt;
 use anyhow::{Context, Result};
 use std::io::{self, Write};
 use log::{info, warn};
+use std::env;
 
 fn main() -> Result<()> {
-    env_logger::init();
-    info!("starting up");
-
     // コマンドライン引数の取得
     let args = CommandLineInterface::from_args();
+
+    // ロギングの設定
+    if args.verbose {
+        env::set_var("RUST_LOG", "info");
+    }
+    env_logger::init();
+    info!("starting up");
 
     /*
      * ファイルの取得
@@ -86,4 +91,7 @@ struct CommandLineInterface {
     /// 検索したいファイルのパス
     #[structopt(parse(from_os_str))]
     path: std::path::PathBuf,
+    /// switch on verbosity
+    #[structopt(short)]
+    verbose: bool,
 }
