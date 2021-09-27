@@ -11,8 +11,12 @@
 use structopt::StructOpt;
 use anyhow::{Context, Result};
 use std::io::{self, Write};
+use log::{info, warn};
 
 fn main() -> Result<()> {
+    env_logger::init();
+    info!("starting up");
+
     // コマンドライン引数の取得
     let args = CommandLineInterface::from_args();
 
@@ -38,6 +42,13 @@ fn main() -> Result<()> {
     let content = std::fs::read_to_string(&args.path)
     .with_context(|| format!("could not read file {:?}", &args.path))?;
 
+    // ファイルの中身が空だったら、検索処理をせず正常終了
+    if content.is_empty() {
+        warn!("target file is empty");
+        println!("no match");
+        return Ok(());
+    }
+
     /*
      * 各行の取得・比較・マッチするものを表示。
      *
@@ -46,6 +57,7 @@ fn main() -> Result<()> {
      * ・毎回ロックされるから→直接stdoutを取得してロックの回数を１度だけに減らす
      * ・毎回flushされるから→BufWriterを利用してバッファリングし回数を減らす
      */
+    let mut is_matched = false;
     let stdout = io::stdout();
     let mut handle = io::BufWriter::new(stdout.lock());
     for line in content.lines() {
@@ -53,7 +65,13 @@ fn main() -> Result<()> {
         if line.contains(&args.pattern) {
             writeln!(handle, "{}", line)
             .with_context(|| "Couldn't write to stdout.")?;
+            is_matched = true;
         }
+    }
+
+    // 検索で一致するものがなかった
+    if !is_matched {
+        println!("no match");
     }
 
     // 正常終了
