@@ -10,7 +10,7 @@
  */
 use structopt::StructOpt;
 use anyhow::{Context, Result};
-use std::io::{self, Write};
+use std::io;
 use log::{info, warn};
 use std::env;
 
@@ -51,9 +51,21 @@ fn main() -> Result<()> {
     if content.is_empty() {
         warn!("target file is empty");
         println!("no match");
-        return Ok(());
+    } else {
+        let stdout = io::stdout();
+        let mut writer = io::BufWriter::new(stdout.lock());
+        find_matches(&content, &args.pattern, &mut writer)?;
     }
 
+    Ok(())
+}
+
+/**
+contentのlineごとに、一致するpatternを標準出力に表示する。
+
+一致するものがない場合はその旨を表示する。
+*/
+fn find_matches(content: &str, pattern: &str, mut writer: impl io::Write) -> Result<()> {
     /*
      * 各行の取得・比較・マッチするものを表示。
      *
@@ -63,12 +75,10 @@ fn main() -> Result<()> {
      * ・毎回flushされるから→BufWriterを利用してバッファリングし回数を減らす
      */
     let mut is_matched = false;
-    let stdout = io::stdout();
-    let mut handle = io::BufWriter::new(stdout.lock());
     for line in content.lines() {
         // パターン（検索文字列）が含まれるか
-        if line.contains(&args.pattern) {
-            writeln!(handle, "{}", line)
+        if line.contains(pattern) {
+            writeln!(writer, "{}", line)
             .with_context(|| "Couldn't write to stdout.")?;
             is_matched = true;
         }
@@ -76,10 +86,10 @@ fn main() -> Result<()> {
 
     // 検索で一致するものがなかった
     if !is_matched {
-        println!("no match");
+        writeln!(writer, "no match")
+        .with_context(|| "Couldn't write to stdout.")?;
     }
 
-    // 正常終了
     Ok(())
 }
 
@@ -94,4 +104,20 @@ struct CommandLineInterface {
     /// switch on verbosity
     #[structopt(short)]
     verbose: bool,
+}
+
+#[test]
+fn case_matched() -> Result<()> {
+    let mut result = Vec::new();
+    find_matches("lorem ipsum\ndolor sit amet", "lorem", &mut result)?;
+    assert_eq!(result, b"lorem ipsum\n");
+    Ok(())
+}
+
+#[test]
+fn case_no_match() -> Result<()> {
+    let mut result = Vec::new();
+    find_matches("lorem ipsum\ndolor sit amet", "test", &mut result)?;
+    assert_eq!(result, b"no match\n");
+    Ok(())
 }
