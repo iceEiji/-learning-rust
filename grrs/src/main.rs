@@ -54,18 +54,17 @@ fn main() -> Result<()> {
     } else {
         let stdout = io::stdout();
         let mut writer = io::BufWriter::new(stdout.lock());
-        find_matches(&content, &args.pattern, &mut writer)?;
+        // 検索で一致するものがなかった
+        if !find_matches(&content, &args.pattern, &mut writer)? {
+            println!("no match");
+        }
     }
 
     Ok(())
 }
 
-/**
-contentのlineごとに、一致するpatternを標準出力に表示する。
-
-一致するものがない場合はその旨を表示する。
-*/
-fn find_matches(content: &str, pattern: &str, mut writer: impl io::Write) -> Result<()> {
+/// contentのlineごとに、一致するpatternを標準出力に表示する。
+fn find_matches(content: &str, pattern: &str, mut writer: impl io::Write) -> Result<bool> {
     /*
      * 各行の取得・比較・マッチするものを表示。
      *
@@ -84,18 +83,12 @@ fn find_matches(content: &str, pattern: &str, mut writer: impl io::Write) -> Res
         }
     }
 
-    // 検索で一致するものがなかった
-    if !is_matched {
-        writeln!(writer, "no match")
-        .with_context(|| "Couldn't write to stdout.")?;
-    }
-
-    Ok(())
+    Ok(is_matched)
 }
 
 /// 指定したファイルから、特定の文字列を検索する。
 #[derive(StructOpt)]
-struct CommandLineInterface { 
+struct CommandLineInterface {
     /// 探したい文字列
     pattern: String,
     /// 検索したいファイルのパス
@@ -118,6 +111,6 @@ fn case_matched() -> Result<()> {
 fn case_no_match() -> Result<()> {
     let mut result = Vec::new();
     find_matches("lorem ipsum\ndolor sit amet", "test", &mut result)?;
-    assert_eq!(result, b"no match\n");
+    assert_eq!(result, b"");
     Ok(())
 }
