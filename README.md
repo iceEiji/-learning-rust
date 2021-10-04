@@ -1,5 +1,8 @@
 # learning-rust
 
+* Rust公式:「学ぶ」ページ
+  * https://www.rust-lang.org/ja/learn
+
 ## grrs: コマンドラインアプリケーション
 
 * チュートリアル
