@@ -24,20 +24,32 @@ pub fn find_matches(content: &str, pattern: &str, mut writer: impl io::Write) ->
     Ok(is_matched)
 }
 
-/// 一致する文字列がある
-#[test]
-fn case_matched() -> Result<()> {
-    let mut result = Vec::new();
-    find_matches("lorem ipsum\ndolor sit amet", "lorem", &mut result)?;
-    assert_eq!(result, b"lorem ipsum\n");
-    Ok(())
-}
+/*
+ * テストコード
+ * 
+ * 補足:
+ * 1. #[cfg(...)] 条件コンパイル。testの時だけ、の他にもOSなどを条件にできる。
+ */
+#[cfg(test)]
+mod tests {
+    // find_matchesを参照するために必要。
+    use super::*;
 
-/// 一致する文字列がない
-#[test]
-fn case_no_match() -> Result<()> {
-    let mut result = Vec::new();
-    find_matches("lorem ipsum\ndolor sit amet", "test", &mut result)?;
-    assert_eq!(result, b"");
-    Ok(())
+    /// 一致する文字列がある
+    #[test]
+    fn case_matched() -> Result<()> {
+        let mut result = Vec::new();
+        find_matches("lorem ipsum\ndolor sit amet", "lorem", &mut result)?;
+        assert_eq!(result, b"lorem ipsum\n");
+        Ok(())
+    }
+
+    /// 一致する文字列がない
+    #[test]
+    fn case_no_match() -> Result<()> {
+        let mut result = Vec::new();
+        find_matches("lorem ipsum\ndolor sit amet", "test", &mut result)?;
+        assert_eq!(result, b"");
+        Ok(())
+    }
 }
