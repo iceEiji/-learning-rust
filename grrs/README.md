@@ -8,3 +8,9 @@ It was developed with the help of [tutorials](https://rust-cli.github.io/book/tu
 ```
 grrs foo bar/baz.txt
 ```
+
+## Testing
+
+```
+cargo test
+```

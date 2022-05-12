@@ -26,7 +26,7 @@ pub fn find_matches(content: &str, pattern: &str, mut writer: impl io::Write) ->
 
 /*
  * 単体テストコード
- * 
+ *
  * 補足:
  * 1. #[cfg(...)] 条件コンパイル。testの時だけ、の他にもOSなどを条件にできる。
  * 2. 単体テストはソースコードと同じファイルに、結合テストはtestsディレクトリ配下に、が推奨っぽい。
