@@ -25,6 +25,13 @@ fn main() -> Result<()> {
     env_logger::init();
     info!("starting up");
 
+    // シグナルハンドリング
+    // ctrlc: Ctrl+Cを簡単にハンドリングできる。
+    // その他多くのシグナルをハンドリングする必要がある場合は、signal-hookが良さそう。
+    ctrlc::set_handler(move || {
+        println!("received Ctrl+C!");
+    }).expect("Error setting Ctrl-C handler");
+
     /*
      * ファイルの取得
      *
